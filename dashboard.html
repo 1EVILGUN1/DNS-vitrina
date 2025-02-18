@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFA500;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 5px;
+        }
+
+        .icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #f5f5f5;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+        }
+
+        .employee {
+            padding: 10px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .employee.active {
+            background: #FFE4B5;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .showcase {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .showcase-box {
+            flex: 1;
+            padding: 20px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+
+        .showcase-box.active {
+            border-color: #32CD32;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">DNS <span style="background: #FFA500; padding: 5px 10px; border-radius: 5px; color: white;">витрина</span></div>
+    <div class="search-box">
+        <input type="text" placeholder="Поиск...">
+    </div>
+    <div class="icons">
+        <span>🔍</span>
+        <span>✔️</span>
+        <span>➕</span>
+        <span>👤</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <!-- Employees will be dynamically added here -->
+    </div>
+    <div class="content">
+        <h2>Задачи</h2>
+        <div class="showcase">
+            <!-- Tasks will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    async function fetchEmployees() {
+        const response = await fetch('http://localhost:9090/users');
+        const employees = await response.json();
+
+        const sidebar = document.querySelector('.sidebar');
+        employees.forEach(employee => {
+            const div = document.createElement('div');
+            div.className = 'employee';
+            div.textContent = `👤 ${employee.name} ${employee.surname}`;
+            div.setAttribute('data-employee-id', employee.id);
+            div.addEventListener('click', showEmployeeDetails);
+            sidebar.appendChild(div);
+        });
+    }
+
+    async function showEmployeeDetails(e) {
+        const employeeDiv = e.target;
+        const employeeId = employeeDiv.getAttribute('data-employee-id');
+
+        const response = await fetch(`http://localhost:9090/users/${employeeId}`);
+        const employeeDetails = await response.json();
+
+        // Remove 'active' class from all employees
+        document.querySelectorAll('.employee').forEach(emp => emp.classList.remove('active'));
+        // Add 'active' class to clicked employee
+        employeeDiv.classList.add('active');
+
+        // Update or insert employee details
+        let contentDiv = document.querySelector('.content');
+        contentDiv.innerHTML = `
+            <h2>${employeeDetails.name} ${employeeDetails.surname}</h2>
+            <div class="showcase">
+                ${employeeDetails.showcases.map(showcase => `
+                    <div class="showcase-box ${showcase.active ? 'active' : ''}">
+                        <strong>${showcase.name}</strong>
+                        <p>${showcase.description}</p>
+                        <small>Окончание: ${showcase.endTime}</small>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // Execute when the page loads to fetch employees
+    document.addEventListener('DOMContentLoaded', fetchEmployees);
+</script>
+</body>
+</html>
