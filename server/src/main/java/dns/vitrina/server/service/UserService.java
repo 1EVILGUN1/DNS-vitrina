@@ -6,13 +6,18 @@ import dns.vitrina.server.dto.UserRequest;
 import dns.vitrina.server.exception.AddedUserException;
 import dns.vitrina.server.exception.NotDateBaseUserException;
 import dns.vitrina.server.mapper.UserMapper;
+import dns.vitrina.server.model.Task;
+import dns.vitrina.server.model.TaskSuccess;
 import dns.vitrina.server.model.User;
+import dns.vitrina.server.model.Vitrina;
 import dns.vitrina.server.repository.UserRepository;
+import dns.vitrina.server.service.task.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -20,19 +25,59 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService implements UserServiceImpl {
     private final UserRepository repository;
+    private final VitrinaService vitrinaService;
+    private final TaskService taskService;
     private final UserMapper mapper;
 
     @Override
     @Transactional
-    public void create(UserRequest request) {
-        log.info("Добавление пользователя в бд: {}", request);
-        if (repository.existsByLastName(request.getLastName())) {
-            log.warn("Пользователь с фамилией {} уже есть в бд", request.getLastName());
+    public void create(User user) {
+        log.info("Добавление пользователя в бд: {}", user);
+        if (repository.existsByLastName(user.getLastName())) {
+            log.warn("Пользователь с фамилией {} уже есть в бд", user.getLastName());
             throw new AddedUserException("Пользователь уже есть в бд");
         }
-        User createdUser = mapper.userDtoToUserCreate(request);
-        repository.save(createdUser);
-        log.info("Пользователь {} добавлен в бд", createdUser.getLastName());
+        repository.save(user);
+        log.info("Пользователь {} добавлен в бд", user.getLastName());
+    }
+
+    @Transactional
+    public void createTask(long userId, Task task){
+        User user = get(userId);
+        vitrinaService.get(task.getVitrinaId());
+        log.info("Create task user {}, task {}", user.getId(), task);
+        taskService.save(task);
+        user.getTasks().add(task);
+        log.info("added task {}", user.getTasks());
+        repository.save(user);
+        log.info("Created task {}", user.getTasks());
+    }
+
+    public void successTask(long userId, Task task){
+        User user = get(userId);
+        vitrinaService.get(task.getVitrinaId());
+        TaskSuccess taskSuccess = new TaskSuccess();
+        taskSuccess.setVitrinaId(task.getVitrinaId());
+        taskSuccess.setUserId(userId);
+        taskSuccess.setName(task.getName());
+        taskSuccess.setDescription(task.getDescription());
+        taskSuccess.setCompletedAt(LocalDate.now());
+        log.info("task success {}", taskSuccess);
+        user.getTasks().remove(task.getId());
+        log.info("removed task {}", user.getTasks());
+        repository.save(user);
+        taskService.delete(task);
+        taskService.saveSuccess(taskSuccess);
+        log.info("Task success {}", taskSuccess);
+    }
+
+    public void addVitrinaUser(long userId, Vitrina vitrina){
+        User user = get(userId);
+        vitrinaService.get(vitrina.getId());
+        user.getVitrins().add(vitrina);
+        log.info("added vitrina user {}", user.getVitrins());
+        repository.save(user);
+        log.info("Saved vitrina user {}", user.getVitrins());
     }
 
     @Override
@@ -46,11 +91,11 @@ public class UserService implements UserServiceImpl {
     }
 
     @Override
-    public UserDto get(Long id) {
+    public User get(Long id) {
         User user = repository.findById(id).stream()
                 .findFirst()
                 .orElseThrow(()-> new NotDateBaseUserException("нет пользователя с таким ID"+ id));
-        return mapper.userToUserDto(user);
+        return user;
     }
 
     @Override
@@ -63,9 +108,8 @@ public class UserService implements UserServiceImpl {
     }
 
     @Override
-    public List<UserDto> getAll() {
+    public List<User> getAll() {
         return repository.findAll().stream()
-                .map(mapper::userToUserDto)
                 .toList();
     }
 }

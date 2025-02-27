@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -27,4 +26,7 @@ public class User {
 
     @OneToMany
     private List<Vitrina> vitrins;
+
+    @OneToMany
+    private List<Task> tasks;
 }

@@ -1,14 +1,15 @@
 package dns.vitrina.server.service;
 
 import dns.vitrina.server.dto.VitrinaDto;
+import dns.vitrina.server.model.Vitrina;
 
 import java.util.List;
 
 public interface VitrinaService {
 
-    VitrinaDto get(Long id);
+    Vitrina get(Long id);
 
-    List<VitrinaDto> getAll();
+    List<Vitrina> getAll();
 
-    void update(VitrinaDto vitrinaDto);
+    void update(Vitrina vitrina);
 }

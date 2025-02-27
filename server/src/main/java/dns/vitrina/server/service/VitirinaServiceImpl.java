@@ -21,21 +21,21 @@ public class VitirinaServiceImpl implements VitrinaService{
     private final VitrinaMapper mapper;
 
     @Override
-    public VitrinaDto get(Long id) {
+    public Vitrina get(Long id) {
         Vitrina vitrina = repository.findById(id).stream()
                 .findFirst()
                 .orElseThrow(()-> new NotDateBaseUserException("По данному ID витрины не существует"+ id));
-        return mapper.toDto(vitrina);
+        return vitrina;
     }
 
     @Override
-    public List<VitrinaDto> getAll() {
-        return repository.findAll().stream().map(mapper::toDto).toList();
+    public List<Vitrina> getAll() {
+        return repository.findAll().stream().toList();
     }
 
     @Override
     @Transactional
-    public void update(VitrinaDto vitrinaDto) {
+    public void update(Vitrina vitrinaDto) {
         Vitrina vitrinaUpdate = repository.findById(vitrinaDto.getId()).orElseThrow(()-> new NotDateBaseUserException("нет витрины"));
         vitrinaUpdate.setName(vitrinaDto.getName());
         repository.save(vitrinaUpdate);

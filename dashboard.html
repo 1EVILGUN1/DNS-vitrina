@@ -25,10 +25,11 @@
             padding: 10px 20px;
             background: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 18px;
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
             color: #FFA500;
         }
@@ -45,60 +46,281 @@
             border: none;
             outline: none;
             padding: 5px;
+            font-size: 16px;
         }
 
         .icons {
             display: flex;
             gap: 15px;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .avatar-icon {
+            cursor: pointer;
+        }
+
+        .popup-menu {
+            display: none;
+            position: absolute;
+            top: 8px;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            width: 200px;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0s 0.5s;
+        }
+
+        .popup-menu.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0s;
+        }
+
+        .popup-menu:not(.active) {
+            visibility: hidden;
+        }
+
+        .popup-menu .menu-item {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .popup-menu .menu-item:hover {
+            background-color: #f5f5f5;
+            transform: scale(1.05);
+        }
+
+        .popup-menu .settings:hover {
+            background-color: #FFA500;
+        }
+
+        .popup-menu .logout:hover {
+            background-color: #FF6347;
         }
 
         .container {
             display: flex;
             flex: 1;
+            overflow: hidden;
         }
 
         .sidebar {
-            width: 250px;
+            width: 500px;
             background: #f5f5f5;
-            padding: 10px;
+            padding: 20px;
             border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        .right-block {
+            flex: 1;
+            height: 700px;
+            overflow: auto;
+            position: relative;
+            background: #eaeaea;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .employee-container {
+            margin-bottom: 10px;
         }
 
         .employee {
-            padding: 10px;
+            padding: 15px;
             background: white;
-            margin-bottom: 5px;
             border-radius: 5px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             cursor: pointer;
+            transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
-        .employee.active {
-            background: #FFE4B5;
+        .employee:hover {
+            background: #FFA500;
+            transform: scale(1.05);
         }
 
-        .content {
-            flex: 1;
-            padding: 20px;
+        .showcase-wrapper {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+        }
+
+        .showcase-wrapper.open {
+            max-height: 500px;
+            opacity: 1;
         }
 
         .showcase {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .showcase-box {
-            flex: 1;
-            padding: 20px;
+            padding: 10px;
+            background: #f9f9f9;
             border-radius: 5px;
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
         }
 
-        .showcase-box.active {
-            border-color: #32CD32;
+        .rectangle {
+            position: absolute;
+            background-color: grey;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .rectangle:hover {
+            background-color: #FFA500;
+        }
+
+        .highlight {
+            background-color: #FFA500 !important;
+        }
+
+        .vitrin-info-block {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 15px;
+            width: 420px;
+            display: none;
+            z-index: 1000;
+            border-radius: 8px;
+            flex-direction: column-reverse;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .vitrin-info-block.visible {
+            display: flex;
+        }
+
+        .vitrin-name {
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 18px;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .vitrin-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 15px;
+        }
+
+        .vitrin-menu-item {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .vitrin-menu-item:hover {
+            background: #FFA500;
+            color: white; /* Для лучшей читаемости текста на оранжевом фоне */
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .edit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .employees-list {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .employee-item {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .employee-item.selected {
+            background: #FFA500;
+            color: white;
+        }
+
+        .save-btn {
+            background: #FFA500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            float: right;
+        }
+
+        .save-btn:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -106,74 +328,298 @@
 <div class="header">
     <div class="logo">DNS <span style="background: #FFA500; padding: 5px 10px; border-radius: 5px; color: white;">витрина</span></div>
     <div class="search-box">
-        <input type="text" placeholder="Поиск...">
+        <input type="text" placeholder="Поиск..." aria-label="Поиск сотрудников или витрин">
     </div>
     <div class="icons">
-        <span>🔍</span>
-        <span>✔️</span>
-        <span>➕</span>
-        <span>👤</span>
-    </div>
-</div>
-
-<div class="container">
-    <div class="sidebar">
-        <!-- Employees will be dynamically added here -->
-    </div>
-    <div class="content">
-        <h2>Задачи</h2>
-        <div class="showcase">
-            <!-- Tasks will be dynamically added here -->
+        <span aria-label="Поиск">🔍</span>
+        <div class="avatar-container">
+            <span class="avatar-icon" aria-label="Профиль пользователя">👤</span>
+            <div class="popup-menu">
+                <div class="menu-item settings">Настройки</div>
+                <div class="menu-item logout">Выйти</div>
+            </div>
         </div>
     </div>
 </div>
 
-<script>
-    async function fetchEmployees() {
-        const response = await fetch('http://localhost:9090/users');
-        const employees = await response.json();
+<div class="vitrin-info-block">
+    <div class="vitrin-actions">
+        <div class="vitrin-menu-item edit">✏️ Изменить витрину</div>
+        <div class="vitrin-menu-item task">📋 Создать задачу</div>
+    </div>
+    <div class="vitrin-name"></div>
+</div>
 
-        const sidebar = document.querySelector('.sidebar');
-        employees.forEach(employee => {
-            const div = document.createElement('div');
-            div.className = 'employee';
-            div.textContent = `👤 ${employee.name} ${employee.surname}`;
-            div.setAttribute('data-employee-id', employee.id);
-            div.addEventListener('click', showEmployeeDetails);
-            sidebar.appendChild(div);
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Редактирование витрины</h2>
+            <span class="close-btn" onclick="closeModal()">×</span>
+        </div>
+        <div class="edit-form">
+            <div>
+                <label>Название витрины:</label>
+                <input type="text" id="vitrinName" class="search-box" style="width: 100%; margin: 10px 0;">
+                <h3>Доступные сотрудники</h3>
+                <div class="employees-list" id="availableEmployees"></div>
+            </div>
+            <div>
+                <h3>Назначенные сотрудники</h3>
+                <div class="employees-list" id="assignedEmployees"></div>
+            </div>
+        </div>
+        <button class="save-btn" onclick="saveChanges()">Сохранить изменения</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="sidebar"></div>
+    <div class="right-block"></div>
+</div>
+
+<script>
+    let employeeVitrinsMap = {};
+    let currentVitrinId = null;
+    let selectedEmployees = new Set();
+
+    async function fetchEmployees() {
+        try {
+            const response = await fetch('http://localhost:9090/users');
+            if (!response.ok) throw new Error('Ошибка загрузки сотрудников');
+            const employees = await response.json();
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.innerHTML = '';
+
+            employees.forEach(employee => {
+                const employeeContainer = document.createElement('div');
+                employeeContainer.className = 'employee-container';
+                const div = document.createElement('div');
+                div.className = 'employee';
+                div.textContent = `👤 ${employee.firstName} ${employee.lastName}`;
+                div.setAttribute('data-employee-id', employee.id);
+                div.addEventListener('click', async () => {
+                    let showcaseWrapper = employeeContainer.querySelector('.showcase-wrapper');
+                    if (showcaseWrapper) {
+                        showcaseWrapper.classList.remove('open');
+                        showcaseWrapper.addEventListener('transitionend', () => showcaseWrapper.remove(), { once: true });
+                    } else {
+                        const response = await fetch(`http://localhost:9090/user/${employee.id}`);
+                        if (!response.ok) throw new Error('Ошибка загрузки данных сотрудника');
+                        const employeeDetails = await response.json();
+                        showcaseWrapper = document.createElement('div');
+                        showcaseWrapper.className = 'showcase-wrapper';
+                        const showcaseDiv = document.createElement('div');
+                        showcaseDiv.className = 'showcase';
+                        showcaseDiv.innerHTML = employeeDetails.vitrins.length > 0
+                            ? employeeDetails.vitrins.map(vitrin => `<div class="showcase-box"><strong>${vitrin.name}</strong></div>`).join('')
+                            : '<p>У сотрудника нет закреплённых витрин.</p>';
+                        showcaseWrapper.appendChild(showcaseDiv);
+                        employeeContainer.appendChild(showcaseWrapper);
+                        setTimeout(() => showcaseWrapper.classList.add('open'), 10);
+                    }
+                    highlightVitrinsForEmployee(employee.id);
+                });
+                employeeContainer.appendChild(div);
+                sidebar.appendChild(employeeContainer);
+
+                employeeVitrinsMap[employee.id] = employee.vitrins ? employee.vitrins.map(v => v.id) : [];
+            });
+        } catch (error) {
+            alert(error.message);
+            console.error(error);
+        }
+    }
+
+    async function fetchVitrins() {
+        try {
+            const response = await fetch('http://localhost:9090/vitrins');
+            if (!response.ok) throw new Error('Ошибка загрузки витрин');
+            const vitrins = await response.json();
+            const rightBlock = document.querySelector('.right-block');
+            rightBlock.innerHTML = '';
+            vitrins.forEach(vitrin => {
+                const div = document.createElement('div');
+                div.className = 'rectangle';
+                div.style.top = `${vitrin.y}px`;
+                div.style.left = `${vitrin.x}px`;
+                div.style.width = `${vitrin.width}px`;
+                div.style.height = `${vitrin.height}px`;
+                div.setAttribute('data-name', vitrin.name);
+                div.setAttribute('data-id', vitrin.id);
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showVitrinMenu(div, vitrin.id);
+                });
+                rightBlock.appendChild(div);
+            });
+        } catch (error) {
+            alert(error.message);
+            console.error(error);
+        }
+    }
+
+    function highlightVitrinsForEmployee(employeeId) {
+        document.querySelectorAll('.rectangle').forEach(rectangle => {
+            rectangle.classList.remove('highlight');
+        });
+
+        const vitrinIds = employeeVitrinsMap[employeeId];
+        vitrinIds.forEach(id => {
+            const rectangle = document.querySelector(`.rectangle[data-id='${id}']`);
+            if (rectangle) {
+                rectangle.classList.add('highlight');
+            }
         });
     }
 
-    async function showEmployeeDetails(e) {
-        const employeeDiv = e.target;
-        const employeeId = employeeDiv.getAttribute('data-employee-id');
+    function showVitrinMenu(rectangle, vitrinId) {
+        const infoBlock = document.querySelector('.vitrin-info-block');
+        const vitrinName = rectangle.getAttribute('data-name');
 
-        const response = await fetch(`http://localhost:9090/users/${employeeId}`);
-        const employeeDetails = await response.json();
+        infoBlock.querySelector('.vitrin-name').textContent = vitrinName;
 
-        // Remove 'active' class from all employees
-        document.querySelectorAll('.employee').forEach(emp => emp.classList.remove('active'));
-        // Add 'active' class to clicked employee
-        employeeDiv.classList.add('active');
+        infoBlock.querySelector('.edit').onclick = () => openEditModal(vitrinId);
+        infoBlock.querySelector('.task').onclick = () => {
+            alert(`Создание задачи для витрины с ID: ${vitrinId}`);
+            infoBlock.classList.remove('visible');
+        };
 
-        // Update or insert employee details
-        let contentDiv = document.querySelector('.content');
-        contentDiv.innerHTML = `
-            <h2>${employeeDetails.name} ${employeeDetails.surname}</h2>
-            <div class="showcase">
-                ${employeeDetails.showcases.map(showcase => `
-                    <div class="showcase-box ${showcase.active ? 'active' : ''}">
-                        <strong>${showcase.name}</strong>
-                        <p>${showcase.description}</p>
-                        <small>Окончание: ${showcase.endTime}</small>
-                    </div>
-                `).join('')}
-            </div>
-        `;
+        infoBlock.classList.add('visible');
+
+        const closeListener = (e) => {
+            if (!infoBlock.contains(e.target) && e.target !== rectangle) {
+                infoBlock.classList.remove('visible');
+                document.removeEventListener('click', closeListener);
+            }
+        };
+        document.addEventListener('click', closeListener);
     }
 
-    // Execute when the page loads to fetch employees
-    document.addEventListener('DOMContentLoaded', fetchEmployees);
+    async function openEditModal(vitrinId) {
+        currentVitrinId = vitrinId;
+        selectedEmployees.clear();
+
+        try {
+            const vitrinRes = await fetch(`http://localhost:9090/vitrina/${vitrinId}`);
+            if (!vitrinRes.ok) throw new Error('Ошибка загрузки данных витрины');
+            const vitrin = await vitrinRes.json();
+
+            const employeesRes = await fetch('http://localhost:9090/users');
+            if (!employeesRes.ok) throw new Error('Ошибка загрузки сотрудников');
+            const allEmployees = await employeesRes.json();
+
+            const assignedEmployees = allEmployees.filter(employee => employee.vitrins?.some(v => v.id === vitrinId));
+            const availableEmployees = allEmployees.filter(employee => !employee.vitrins?.some(v => v.id === vitrinId));
+
+            document.getElementById('vitrinName').value = vitrin.name;
+
+            assignedEmployees.forEach(emp => selectedEmployees.add(emp.id));
+
+            renderEmployees(assignedEmployees, 'assignedEmployees', true);
+            renderEmployees(availableEmployees, 'availableEmployees', true);
+
+            document.getElementById('editModal').style.display = 'flex';
+        } catch (error) {
+            alert(error.message);
+            console.error(error);
+        }
+    }
+
+    function renderEmployees(employees, containerId, selectable) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        employees.forEach(employee => {
+            const div = document.createElement('div');
+            div.className = 'employee-item';
+            div.textContent = `${employee.firstName} ${employee.lastName}`;
+            div.dataset.id = employee.id;
+
+            if (selectable) {
+                div.addEventListener('click', () => toggleEmployee(employee.id, div));
+            }
+
+            if (selectedEmployees.has(employee.id)) {
+                div.classList.add('selected');
+            }
+
+            container.appendChild(div);
+        });
+    }
+
+    function toggleEmployee(employeeId, element) {
+        if (selectedEmployees.has(employeeId)) {
+            selectedEmployees.delete(employeeId);
+            element.classList.remove('selected');
+        } else {
+            selectedEmployees.add(employeeId);
+            element.classList.add('selected');
+        }
+    }
+
+    async function saveChanges() {
+        const name = document.getElementById('vitrinName').value;
+
+        try {
+            await fetch(`http://localhost:9090/vitrina`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    id: currentVitrinId,
+                    name: name
+                })
+            });
+
+            await fetch(`http://localhost:9090/users-vitrina`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    vitrinId: currentVitrinId,
+                    employeeIds: Array.from(selectedEmployees)
+                })
+            });
+
+            closeModal();
+            fetchEmployees();
+            fetchVitrins();
+        } catch (error) {
+            alert('Ошибка сохранения изменений');
+            console.error(error);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchEmployees();
+        fetchVitrins();
+
+        const avatarContainer = document.querySelector('.avatar-container');
+        const popupMenu = document.querySelector('.popup-menu');
+
+        avatarContainer.addEventListener('mouseenter', () => {
+            popupMenu.classList.add('active');
+        });
+
+        avatarContainer.addEventListener('mouseleave', () => {
+            popupMenu.classList.remove('active');
+        });
+
+        popupMenu.querySelector('.settings').addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#FFA500';
+        });
+        popupMenu.querySelector('.settings').addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+        popupMenu.querySelector('.logout').addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#FF6347';
+        });
+        popupMenu.querySelector('.logout').addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
 </script>
 </body>
 </html>
