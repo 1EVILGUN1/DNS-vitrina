@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание задачи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .employees-list {
+            width: 300px;
+            background: #f5f5f5;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        .employees-list h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .employee {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+            border-radius: 5px;
+        }
+
+        .employee.selected {
+            background: #FFA500;
+            color: white;
+        }
+
+        .task-form {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .task-form h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .task-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .task-form input, .task-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .task-form input {
+            max-width: 250px; /* Ограничение ширины для поля названия */
+        }
+
+        .task-form textarea {
+            max-width: 400px; /* Ограничение ширины для поля описания */
+            height: 150px; /* Фиксированная высота для описания */
+            resize: vertical; /* Возможность изменять высоту */
+        }
+
+        .task-form button {
+            padding: 10px 20px;
+            background: #FFA500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .task-form button:hover {
+            background: #FF6347; /* Оранжевый оттенок при наведении */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="employees-list">
+        <h2>Сотрудники</h2>
+        <div id="employeesList"></div>
+    </div>
+    <div class="task-form">
+        <h2>Создание задачи</h2>
+        <label for="taskName">Название задачи</label>
+        <input type="text" id="taskName" placeholder="Название задачи (до 25 символов)" maxlength="25">
+        <label for="taskDescription">Подробное описание к задаче</label>
+        <textarea id="taskDescription" placeholder="Подробное описание к задаче (до 300 символов)" maxlength="300"></textarea>
+        <button id="createTaskBtn">Создать задачу</button>
+    </div>
+</div>
+
+<script>
+    let selectedEmployees = new Set();
+    const urlParams = new URLSearchParams(window.location.search);
+    const vitrinId = urlParams.get('vitrinId');
+
+    // Проверка наличия vitrinId
+    if (!vitrinId) {
+        alert('Ошибка: не указан идентификатор витрины в URL');
+        window.location.href = '/dashboard.html'; // Перенаправление на дашборд
+        throw new Error('vitrinId не указан'); // Прерываем выполнение
+    }
+
+    // Загрузка пользователей, назначенных на витрину
+    async function fetchAssignedEmployees() {
+        try {
+            const response = await fetch('http://localhost:9090/users');
+            if (!response.ok) throw new Error('Ошибка загрузки сотрудников');
+            const employees = await response.json();
+
+            // Фильтрация сотрудников по vitrinId (строгое сравнение с приведением типов)
+            const assignedEmployees = employees.filter(employee =>
+                employee.vitrins?.some(v => v.id === parseInt(vitrinId))
+            );
+            renderEmployees(assignedEmployees);
+        } catch (error) {
+            alert('Ошибка загрузки сотрудников: ' + error.message);
+            console.error(error);
+        }
+    }
+
+    // Отображение списка пользователей
+    function renderEmployees(employees) {
+        const employeesList = document.getElementById('employeesList');
+        employeesList.innerHTML = '';
+
+        employees.forEach(employee => {
+            const div = document.createElement('div');
+            div.className = 'employee';
+            div.textContent = `${employee.firstName} ${employee.lastName}`;
+            div.dataset.id = employee.id;
+            div.addEventListener('click', () => toggleEmployee(employee.id, div));
+            employeesList.appendChild(div);
+        });
+    }
+
+    // Переключение выделения сотрудника
+    function toggleEmployee(employeeId, element) {
+        if (selectedEmployees.has(employeeId)) {
+            selectedEmployees.delete(employeeId);
+            element.classList.remove('selected');
+        } else {
+            selectedEmployees.add(employeeId);
+            element.classList.add('selected');
+        }
+    }
+
+    // Создание задач для выбранных сотрудников
+    async function createTasks() {
+        const taskName = document.getElementById('taskName').value.trim();
+        const taskDescription = document.getElementById('taskDescription').value.trim();
+
+        if (!taskName || !taskDescription) {
+            alert('Пожалуйста, заполните название и описание задачи');
+            return;
+        }
+
+        if (selectedEmployees.size === 0) {
+            alert('Пожалуйста, выберите хотя бы одного сотрудника');
+            return;
+        }
+
+        try {
+            for (const employeeId of selectedEmployees) {
+                const response = await fetch(`http://localhost:9090/create-task/${employeeId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: taskName,
+                        description: taskDescription,
+                        vitrinaId: parseInt(vitrinId) // Приводим к числу для соответствия формату JSON
+                    })
+                });
+                if (!response.ok) throw new Error(`Ошибка создания задачи для сотрудника ${employeeId}`);
+            }
+            alert('Задачи успешно созданы');
+            window.location.href = '/dashboard.html'; // Возврат на дашборд
+        } catch (error) {
+            alert('Ошибка при создании задачи: ' + error.message);
+            console.error(error);
+        }
+    }
+
+    // Привязка события к кнопке "Создать задачу"
+    document.getElementById('createTaskBtn').addEventListener('click', createTasks);
+
+    // Загрузка сотрудников при открытии страницы
+    document.addEventListener('DOMContentLoaded', fetchAssignedEmployees);
+</script>
+</body>
+</html>

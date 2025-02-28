@@ -480,8 +480,7 @@
 
         infoBlock.querySelector('.edit').onclick = () => openEditModal(vitrinId);
         infoBlock.querySelector('.task').onclick = () => {
-            alert(`Создание задачи для витрины с ID: ${vitrinId}`);
-            infoBlock.classList.remove('visible');
+            window.location.href = "create-task.html";
         };
 
         infoBlock.classList.add('visible');
