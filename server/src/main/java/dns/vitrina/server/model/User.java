@@ -25,8 +25,5 @@ public class User {
     private String password;
 
     @OneToMany
-    private List<Vitrina> vitrins;
-
-    @OneToMany
     private List<Task> tasks;
 }

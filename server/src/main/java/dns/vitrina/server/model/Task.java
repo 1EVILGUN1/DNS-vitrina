@@ -3,6 +3,7 @@ package dns.vitrina.server.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -26,7 +27,7 @@ public class Task {
     private StatusTask status;
 
     @Column
-    private Date created;
+    private LocalDate created;
 
     @Column
     private Long vitrinaId;

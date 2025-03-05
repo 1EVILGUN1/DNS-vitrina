@@ -122,7 +122,7 @@
 <script>
     let selectedEmployees = new Set();
     const urlParams = new URLSearchParams(window.location.search);
-    const vitrinId = urlParams.get('vitrinId');
+    const vitrinId = parseInt(urlParams.get('vitrinId'));
 
     // Проверка наличия vitrinId
     if (!vitrinId) {
@@ -131,20 +131,16 @@
         throw new Error('vitrinId не указан'); // Прерываем выполнение
     }
 
-    // Загрузка пользователей, назначенных на витрину
-    async function fetchAssignedEmployees() {
+    // Загрузка данных о витрине и её сотрудниках
+    async function fetchVitrinData() {
         try {
-            const response = await fetch('http://localhost:9090/users');
-            if (!response.ok) throw new Error('Ошибка загрузки сотрудников');
-            const employees = await response.json();
-
-            // Фильтрация сотрудников по vitrinId (строгое сравнение с приведением типов)
-            const assignedEmployees = employees.filter(employee =>
-                employee.vitrins?.some(v => v.id === parseInt(vitrinId))
-            );
+            const response = await fetch(`http://localhost:9090/vitrina/${vitrinId}`);
+            if (!response.ok) throw new Error('Ошибка загрузки данных витрины');
+            const vitrin = await response.json();
+            const assignedEmployees = vitrin.usersToVitrina || [];
             renderEmployees(assignedEmployees);
         } catch (error) {
-            alert('Ошибка загрузки сотрудников: ' + error.message);
+            alert('Ошибка загрузки данных витрины: ' + error.message);
             console.error(error);
         }
     }
@@ -214,8 +210,8 @@
     // Привязка события к кнопке "Создать задачу"
     document.getElementById('createTaskBtn').addEventListener('click', createTasks);
 
-    // Загрузка сотрудников при открытии страницы
-    document.addEventListener('DOMContentLoaded', fetchAssignedEmployees);
+    // Загрузка данных витрины при открытии страницы
+    document.addEventListener('DOMContentLoaded', fetchVitrinData);
 </script>
 </body>
 </html>

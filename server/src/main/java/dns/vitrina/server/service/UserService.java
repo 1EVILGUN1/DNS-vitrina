@@ -6,10 +6,7 @@ import dns.vitrina.server.dto.UserRequest;
 import dns.vitrina.server.exception.AddedUserException;
 import dns.vitrina.server.exception.NotDateBaseUserException;
 import dns.vitrina.server.mapper.UserMapper;
-import dns.vitrina.server.model.Task;
-import dns.vitrina.server.model.TaskSuccess;
-import dns.vitrina.server.model.User;
-import dns.vitrina.server.model.Vitrina;
+import dns.vitrina.server.model.*;
 import dns.vitrina.server.repository.UserRepository;
 import dns.vitrina.server.service.task.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +42,8 @@ public class UserService implements UserServiceImpl {
     public void createTask(long userId, Task task){
         User user = get(userId);
         vitrinaService.get(task.getVitrinaId());
+        task.setCreated(LocalDate.now());
+        task.setStatus(StatusTask.PENDING);
         log.info("Create task user {}, task {}", user.getId(), task);
         taskService.save(task);
         user.getTasks().add(task);
@@ -74,10 +73,10 @@ public class UserService implements UserServiceImpl {
     public void addVitrinaUser(long userId, Vitrina vitrina){
         User user = get(userId);
         vitrinaService.get(vitrina.getId());
-        user.getVitrins().add(vitrina);
-        log.info("added vitrina user {}", user.getVitrins());
-        repository.save(user);
-        log.info("Saved vitrina user {}", user.getVitrins());
+        vitrina.addUserToVitrina(user);
+        log.info("added vitrina user {}", vitrina.getUsersToVitrina());
+        vitrinaService.update(vitrina);
+        log.info("Saved vitrina user {}", vitrina.getUsersToVitrina());
     }
 
     @Override

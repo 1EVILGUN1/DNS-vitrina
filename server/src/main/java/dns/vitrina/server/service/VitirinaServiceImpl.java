@@ -38,6 +38,7 @@ public class VitirinaServiceImpl implements VitrinaService{
     public void update(Vitrina vitrinaDto) {
         Vitrina vitrinaUpdate = repository.findById(vitrinaDto.getId()).orElseThrow(()-> new NotDateBaseUserException("нет витрины"));
         vitrinaUpdate.setName(vitrinaDto.getName());
+        vitrinaUpdate.setUsersToVitrina(vitrinaDto.getUsersToVitrina());
         repository.save(vitrinaUpdate);
     }
 }

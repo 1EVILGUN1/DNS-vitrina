@@ -121,7 +121,7 @@
         }
 
         .sidebar {
-            width: 500px;
+            width: 300px;
             background: #f5f5f5;
             padding: 20px;
             border-right: 1px solid #ddd;
@@ -130,13 +130,13 @@
 
         .right-block {
             flex: 1;
-            height: 700px;
+            height: 295px;
             overflow: auto;
             position: relative;
             background: #eaeaea;
-            margin-top: 20px;
+            margin-top: 0; /* Убрали отступ сверху */
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 0; /* Убрали внутренние отступы, если они не нужны */
         }
 
         .employee-container {
@@ -322,6 +322,10 @@
         .save-btn:hover {
             opacity: 0.9;
         }
+
+        .rectangle.active {
+            background-color: #FFA500 !important;
+        }
     </style>
 </head>
 <body>
@@ -378,10 +382,12 @@
 </div>
 
 <script>
-    let employeeVitrinsMap = {};
+    let vitrinsData = [];
     let currentVitrinId = null;
     let selectedEmployees = new Set();
+    let activeVitrinId = null; // Переменная для отслеживания активной витрины
 
+    // Загрузка списка сотрудников
     async function fetchEmployees() {
         try {
             const response = await fetch('http://localhost:9090/users');
@@ -397,32 +403,35 @@
                 div.className = 'employee';
                 div.textContent = `👤 ${employee.firstName} ${employee.lastName}`;
                 div.setAttribute('data-employee-id', employee.id);
-                div.addEventListener('click', async () => {
+                div.addEventListener('click', () => {
                     let showcaseWrapper = employeeContainer.querySelector('.showcase-wrapper');
                     if (showcaseWrapper) {
+                        // Закрываем окно и убираем подсветку
                         showcaseWrapper.classList.remove('open');
-                        showcaseWrapper.addEventListener('transitionend', () => showcaseWrapper.remove(), { once: true });
+                        showcaseWrapper.addEventListener('transitionend', () => {
+                            showcaseWrapper.remove();
+                            removeHighlight(); // Убираем подсветку
+                        }, { once: true });
                     } else {
-                        const response = await fetch(`http://localhost:9090/user/${employee.id}`);
-                        if (!response.ok) throw new Error('Ошибка загрузки данных сотрудника');
-                        const employeeDetails = await response.json();
+                        // Открываем окно и подсвечиваем витрины
+                        const userVitrins = vitrinsData.filter(vitrin =>
+                            vitrin.usersToVitrina.some(user => user.id === employee.id)
+                        );
                         showcaseWrapper = document.createElement('div');
                         showcaseWrapper.className = 'showcase-wrapper';
                         const showcaseDiv = document.createElement('div');
                         showcaseDiv.className = 'showcase';
-                        showcaseDiv.innerHTML = employeeDetails.vitrins.length > 0
-                            ? employeeDetails.vitrins.map(vitrin => `<div class="showcase-box"><strong>${vitrin.name}</strong></div>`).join('')
+                        showcaseDiv.innerHTML = userVitrins.length > 0
+                            ? userVitrins.map(vitrin => `<div class="showcase-box"><strong>${vitrin.name}</strong></div>`).join('')
                             : '<p>У сотрудника нет закреплённых витрин.</p>';
                         showcaseWrapper.appendChild(showcaseDiv);
                         employeeContainer.appendChild(showcaseWrapper);
                         setTimeout(() => showcaseWrapper.classList.add('open'), 10);
+                        highlightVitrinsForEmployee(employee.id); // Подсвечиваем витрины
                     }
-                    highlightVitrinsForEmployee(employee.id);
                 });
                 employeeContainer.appendChild(div);
                 sidebar.appendChild(employeeContainer);
-
-                employeeVitrinsMap[employee.id] = employee.vitrins ? employee.vitrins.map(v => v.id) : [];
             });
         } catch (error) {
             alert(error.message);
@@ -430,14 +439,15 @@
         }
     }
 
+    // Загрузка списка витрин и сохранение данных
     async function fetchVitrins() {
         try {
             const response = await fetch('http://localhost:9090/vitrins');
             if (!response.ok) throw new Error('Ошибка загрузки витрин');
-            const vitrins = await response.json();
+            vitrinsData = await response.json(); // Сохраняем полные данные витрин
             const rightBlock = document.querySelector('.right-block');
             rightBlock.innerHTML = '';
-            vitrins.forEach(vitrin => {
+            vitrinsData.forEach(vitrin => {
                 const div = document.createElement('div');
                 div.className = 'rectangle';
                 div.style.top = `${vitrin.y}px`;
@@ -447,10 +457,18 @@
                 div.setAttribute('data-name', vitrin.name);
                 div.setAttribute('data-id', vitrin.id);
                 div.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showVitrinMenu(div, vitrin.id);
+                    e.stopPropagation(); // Предотвращаем всплытие события
+                    handleVitrinClick(div, vitrin.id);
+                    showVitrinMenu(div, vitrin.id); // Сохраняем вызов меню
                 });
                 rightBlock.appendChild(div);
+            });
+
+            // Обработчик клика на пустое пространство в right-block
+            rightBlock.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('rectangle')) {
+                    clearActiveVitrin();
+                }
             });
         } catch (error) {
             alert(error.message);
@@ -458,20 +476,31 @@
         }
     }
 
+    // Подсветка витрин для сотрудника
     function highlightVitrinsForEmployee(employeeId) {
         document.querySelectorAll('.rectangle').forEach(rectangle => {
             rectangle.classList.remove('highlight');
         });
 
-        const vitrinIds = employeeVitrinsMap[employeeId];
-        vitrinIds.forEach(id => {
-            const rectangle = document.querySelector(`.rectangle[data-id='${id}']`);
+        // Фильтруем витрины, связанные с сотрудником
+        const userVitrins = vitrinsData.filter(vitrin =>
+            vitrin.usersToVitrina.some(user => user.id === employeeId)
+        );
+        userVitrins.forEach(vitrin => {
+            const rectangle = document.querySelector(`.rectangle[data-id='${vitrin.id}']`);
             if (rectangle) {
                 rectangle.classList.add('highlight');
             }
         });
     }
 
+    function removeHighlight() {
+        document.querySelectorAll('.rectangle').forEach(rectangle => {
+            rectangle.classList.remove('highlight');
+        });
+    }
+
+    // Отображение меню витрины
     function showVitrinMenu(rectangle, vitrinId) {
         const infoBlock = document.querySelector('.vitrin-info-block');
         const vitrinName = rectangle.getAttribute('data-name');
@@ -480,7 +509,7 @@
 
         infoBlock.querySelector('.edit').onclick = () => openEditModal(vitrinId);
         infoBlock.querySelector('.task').onclick = () => {
-            window.location.href = "create-task.html";
+            window.location.href = `create-task.html?vitrinId=${vitrinId}`;
         };
 
         infoBlock.classList.add('visible');
@@ -494,6 +523,7 @@
         document.addEventListener('click', closeListener);
     }
 
+    // Открытие модального окна редактирования
     async function openEditModal(vitrinId) {
         currentVitrinId = vitrinId;
         selectedEmployees.clear();
@@ -507,8 +537,12 @@
             if (!employeesRes.ok) throw new Error('Ошибка загрузки сотрудников');
             const allEmployees = await employeesRes.json();
 
-            const assignedEmployees = allEmployees.filter(employee => employee.vitrins?.some(v => v.id === vitrinId));
-            const availableEmployees = allEmployees.filter(employee => !employee.vitrins?.some(v => v.id === vitrinId));
+            // Получаем список назначенных сотрудников из vitrin.usersToVitrina
+            const assignedEmployees = vitrin.usersToVitrina;
+            const assignedEmployeeIds = assignedEmployees.map(user => user.id);
+            const availableEmployees = allEmployees.filter(employee =>
+                !assignedEmployeeIds.includes(employee.id)
+            );
 
             document.getElementById('vitrinName').value = vitrin.name;
 
@@ -524,6 +558,7 @@
         }
     }
 
+    // Рендеринг списка сотрудников
     function renderEmployees(employees, containerId, selectable) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
@@ -546,6 +581,7 @@
         });
     }
 
+    // Переключение сотрудников
     function toggleEmployee(employeeId, element) {
         if (selectedEmployees.has(employeeId)) {
             selectedEmployees.delete(employeeId);
@@ -556,6 +592,7 @@
         }
     }
 
+    // Сохранение изменений
     async function saveChanges() {
         const name = document.getElementById('vitrinName').value;
 
@@ -587,10 +624,37 @@
         }
     }
 
+    // Закрытие модального окна
     function closeModal() {
         document.getElementById('editModal').style.display = 'none';
     }
 
+    // Новая функция для обработки клика по витрине
+    function handleVitrinClick(rectangle, vitrinId) {
+        if (activeVitrinId === vitrinId) {
+            // Если кликнули на уже активную витрину, убираем подсветку
+            clearActiveVitrin();
+        } else {
+            // Убираем подсветку с предыдущей активной витрины
+            clearActiveVitrin();
+            // Подсвечиваем новую витрину
+            rectangle.classList.add('active');
+            activeVitrinId = vitrinId;
+        }
+    }
+
+    // Новая функция для убирания подсветки
+    function clearActiveVitrin() {
+        if (activeVitrinId) {
+            const previousActive = document.querySelector(`.rectangle[data-id='${activeVitrinId}']`);
+            if (previousActive) {
+                previousActive.classList.remove('active');
+            }
+            activeVitrinId = null;
+        }
+    }
+
+    // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', () => {
         fetchEmployees();
         fetchVitrins();
@@ -617,6 +681,14 @@
         });
         popupMenu.querySelector('.logout').addEventListener('mouseleave', function() {
             this.style.backgroundColor = '';
+        });
+
+        // Обработчик клика на весь документ
+        document.addEventListener('click', (e) => {
+            // Проверяем, кликнули ли не на витрину
+            if (!e.target.classList.contains('rectangle')) {
+                clearActiveVitrin();
+            }
         });
     });
 </script>

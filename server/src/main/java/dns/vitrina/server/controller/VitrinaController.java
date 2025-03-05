@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,6 +21,12 @@ public class VitrinaController {
     @GetMapping("/vitrins")
     public List<Vitrina> getVitrinas() {
         return service.getAll();
+    }
+
+    @CrossOrigin
+    @GetMapping("/vitrina/{vitrinaId}")
+    public Vitrina getVitrina(@PathVariable Long vitrinaId) {
+        return service.get(vitrinaId);
     }
 
 }

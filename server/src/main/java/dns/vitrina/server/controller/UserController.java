@@ -61,4 +61,10 @@ public class UserController {
     public void addVitrina(@PathVariable Long userId, @RequestBody Vitrina vitrina) {
         service.addVitrinaUser(userId, vitrina);
     }
+
+    @CrossOrigin
+    @PostMapping("/setting-vitrina")
+    public void updateUserOnVitrina(@RequestBody List<User> users) {
+
+    }
 }
