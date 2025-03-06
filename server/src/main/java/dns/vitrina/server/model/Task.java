@@ -30,5 +30,8 @@ public class Task {
     private LocalDate created;
 
     @Column
+    private LocalDate endDate;
+
+    @Column
     private Long vitrinaId;
 }

@@ -79,6 +79,10 @@ public class UserService implements UserServiceImpl {
         log.info("Saved vitrina user {}", vitrina.getUsersToVitrina());
     }
 
+    public void updateVitrina(Vitrina vitrina){
+        vitrinaService.update(vitrina);
+    }
+
     @Override
     public void update(Long id, UserDto userDto) {
 

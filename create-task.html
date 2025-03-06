@@ -78,13 +78,13 @@
         }
 
         .task-form input {
-            max-width: 250px; /* Ограничение ширины для поля названия */
+            max-width: 250px;
         }
 
         .task-form textarea {
-            max-width: 400px; /* Ограничение ширины для поля описания */
-            height: 150px; /* Фиксированная высота для описания */
-            resize: vertical; /* Возможность изменять высоту */
+            max-width: 400px;
+            height: 150px;
+            resize: vertical;
         }
 
         .task-form button {
@@ -99,7 +99,7 @@
         }
 
         .task-form button:hover {
-            background: #FF6347; /* Оранжевый оттенок при наведении */
+            background: #FF6347;
         }
     </style>
 </head>
@@ -115,6 +115,8 @@
         <input type="text" id="taskName" placeholder="Название задачи (до 25 символов)" maxlength="25">
         <label for="taskDescription">Подробное описание к задаче</label>
         <textarea id="taskDescription" placeholder="Подробное описание к задаче (до 300 символов)" maxlength="300"></textarea>
+        <label for="endDate">Дата окончания</label>
+        <input type="date" id="endDate">
         <button id="createTaskBtn">Создать задачу</button>
     </div>
 </div>
@@ -124,14 +126,21 @@
     const urlParams = new URLSearchParams(window.location.search);
     const vitrinId = parseInt(urlParams.get('vitrinId'));
 
-    // Проверка наличия vitrinId
+    // Установка текущей даты (сегодня)
+    const today = new Date().toISOString().split('T')[0]; // Формат YYYY-MM-DD
+
     if (!vitrinId) {
         alert('Ошибка: не указан идентификатор витрины в URL');
-        window.location.href = '/dashboard.html'; // Перенаправление на дашборд
-        throw new Error('vitrinId не указан'); // Прерываем выполнение
+        window.location.href = '/dashboard.html';
+        throw new Error('vitrinId не указан');
     }
 
-    // Загрузка данных о витрине и её сотрудниках
+    // Установка минимальной даты в поле input
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('endDate').setAttribute('min', today);
+        fetchVitrinData();
+    });
+
     async function fetchVitrinData() {
         try {
             const response = await fetch(`http://localhost:9090/vitrina/${vitrinId}`);
@@ -145,7 +154,6 @@
         }
     }
 
-    // Отображение списка пользователей
     function renderEmployees(employees) {
         const employeesList = document.getElementById('employeesList');
         employeesList.innerHTML = '';
@@ -160,7 +168,6 @@
         });
     }
 
-    // Переключение выделения сотрудника
     function toggleEmployee(employeeId, element) {
         if (selectedEmployees.has(employeeId)) {
             selectedEmployees.delete(employeeId);
@@ -171,13 +178,28 @@
         }
     }
 
-    // Создание задач для выбранных сотрудников
     async function createTasks() {
         const taskName = document.getElementById('taskName').value.trim();
         const taskDescription = document.getElementById('taskDescription').value.trim();
+        const endDate = document.getElementById('endDate').value;
 
         if (!taskName || !taskDescription) {
             alert('Пожалуйста, заполните название и описание задачи');
+            return;
+        }
+
+        if (!endDate) {
+            alert('Пожалуйста, укажите дату окончания задачи');
+            return;
+        }
+
+        // Проверка, что дата не раньше сегодняшней
+        const selectedDate = new Date(endDate);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Сбрасываем время для корректного сравнения
+
+        if (selectedDate < currentDate) {
+            alert('Дата окончания не может быть раньше сегодняшнего дня');
             return;
         }
 
@@ -194,23 +216,21 @@
                     body: JSON.stringify({
                         name: taskName,
                         description: taskDescription,
-                        vitrinaId: parseInt(vitrinId) // Приводим к числу для соответствия формату JSON
+                        endDate: endDate,
+                        vitrinaId: parseInt(vitrinId)
                     })
                 });
                 if (!response.ok) throw new Error(`Ошибка создания задачи для сотрудника ${employeeId}`);
             }
             alert('Задачи успешно созданы');
-            window.location.href = '/dashboard.html'; // Возврат на дашборд
+            window.location.href = '/DNS-vitrina/dashboard.html';
         } catch (error) {
             alert('Ошибка при создании задачи: ' + error.message);
             console.error(error);
         }
     }
 
-    // Привязка события к кнопке "Создать задачу"
     document.getElementById('createTaskBtn').addEventListener('click', createTasks);
-
-    // Загрузка данных витрины при открытии страницы
     document.addEventListener('DOMContentLoaded', fetchVitrinData);
 </script>
 </body>

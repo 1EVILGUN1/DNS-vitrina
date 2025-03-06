@@ -202,19 +202,81 @@
             border: 1px solid #ccc;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             padding: 15px;
-            width: 420px;
+            width: 1100px; /* Увеличиваем ширину до 1000px, чтобы вместить больше задач */
+            height: 300px;
             display: none;
             z-index: 1000;
             border-radius: 8px;
-            flex-direction: column-reverse;
-            max-height: 90vh;
-            overflow-y: auto;
+            flex-direction: row; /* Сохраняем горизонтальное расположение */
+            max-height: 90vh; /* Ограничиваем высоту окном просмотра */
+            overflow-y: auto; /* Добавляем вертикальную прокрутку для всего блока, если задач много */
         }
 
         .vitrin-info-block.visible {
             display: flex;
         }
 
+        .tasks-section {
+            flex: 2; /* Увеличиваем долю ширины для задач, чтобы они занимали 2/3 ширины .vitrin-info-block */
+            padding: 15px;
+            overflow-x: auto; /* Сохраняем горизонтальную прокрутку для задач */
+            overflow-y: hidden; /* Убираем вертикальную прокрутку внутри tasks-section */
+            max-height: 80vh; /* Максимальная высота для задач */
+            border-right: 1px solid #ddd; /* Сохраняем разделительную линию */
+            white-space: nowrap; /* Сохраняем задачи в горизонтальном ряду */
+        }
+
+        .vitrin-details {
+            flex: 1; /* Уменьшаем долю для деталей, чтобы они занимали 1/3 ширины */
+            padding: 15px;
+        }
+
+        .task-item {
+            margin-right: 15px; /* Отступ между задачами справа */
+            margin-bottom: 15px; /* Отступ снизу для выравнивания */
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            display: inline-block; /* Задачи в строке */
+            vertical-align: top; /* Выравнивание по верхнему краю */
+            width: 350px; /* Увеличиваем ширину задач для большего текста */
+            box-sizing: border-box; /* Учитываем padding и border в ширине */
+        }
+
+        .task-name {
+            font-size: 20px; /* Увеличенные буквы для названия задачи */
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .task-description {
+            font-size: 16px; /* Чуть меньший размер для описания */
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .task-meta {
+            font-size: 14px; /* Мелкий текст для даты и статуса */
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .task-end-date {
+            font-size: 14px; /* Размер текста как у .task-meta */
+            color: #888; /* Цвет текста как у .task-meta */
+            margin-top: 5px; /* Отступ сверху для отделения от предыдущей строки */
+        }
+
+        .task-meta .status {
+            font-weight: bold;
+        }
+
+        .task-meta .status-pending {
+            color: #FFA500; /* Оранжевый цвет для статуса "В работе" */
+        }
         .vitrin-name {
             font-weight: bold;
             margin: 10px 0;
@@ -347,11 +409,14 @@
 </div>
 
 <div class="vitrin-info-block">
-    <div class="vitrin-actions">
-        <div class="vitrin-menu-item edit">✏️ Изменить витрину</div>
-        <div class="vitrin-menu-item task">📋 Создать задачу</div>
+    <div class="tasks-section"></div> <!-- Новый блок для задач -->
+    <div class="vitrin-details">
+        <div class="vitrin-actions">
+            <div class="vitrin-menu-item edit">✏️ Изменить витрину</div>
+            <div class="vitrin-menu-item task">📋 Создать задачу</div>
+        </div>
+        <div class="vitrin-name"></div>
     </div>
-    <div class="vitrin-name"></div>
 </div>
 
 <div class="modal-overlay" id="editModal">
@@ -501,57 +566,71 @@
     }
 
     // Отображение меню витрины
-    function showVitrinMenu(rectangle, vitrinId) {
+    async function showVitrinMenu(rectangle, vitrinId) {
         const infoBlock = document.querySelector('.vitrin-info-block');
         const vitrinName = rectangle.getAttribute('data-name');
 
         infoBlock.querySelector('.vitrin-name').textContent = vitrinName;
 
-        infoBlock.querySelector('.edit').onclick = () => openEditModal(vitrinId);
-        infoBlock.querySelector('.task').onclick = () => {
-            window.location.href = `create-task.html?vitrinId=${vitrinId}`;
-        };
-
-        infoBlock.classList.add('visible');
-
-        const closeListener = (e) => {
-            if (!infoBlock.contains(e.target) && e.target !== rectangle) {
-                infoBlock.classList.remove('visible');
-                document.removeEventListener('click', closeListener);
-            }
-        };
-        document.addEventListener('click', closeListener);
-    }
-
-    // Открытие модального окна редактирования
-    async function openEditModal(vitrinId) {
-        currentVitrinId = vitrinId;
-        selectedEmployees.clear();
+        const tasksSection = infoBlock.querySelector('.tasks-section');
+        tasksSection.innerHTML = '';
 
         try {
-            const vitrinRes = await fetch(`http://localhost:9090/vitrina/${vitrinId}`);
-            if (!vitrinRes.ok) throw new Error('Ошибка загрузки данных витрины');
-            const vitrin = await vitrinRes.json();
+            const response = await fetch(`http://localhost:9090/vitrina/${vitrinId}`);
+            if (!response.ok) throw new Error('Ошибка загрузки данных витрины');
+            const vitrinData = await response.json();
 
-            const employeesRes = await fetch('http://localhost:9090/users');
-            if (!employeesRes.ok) throw new Error('Ошибка загрузки сотрудников');
-            const allEmployees = await employeesRes.json();
+            vitrinData.usersToVitrina.forEach(user => {
+                user.tasks.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'task-item';
 
-            // Получаем список назначенных сотрудников из vitrin.usersToVitrina
-            const assignedEmployees = vitrin.usersToVitrina;
-            const assignedEmployeeIds = assignedEmployees.map(user => user.id);
-            const availableEmployees = allEmployees.filter(employee =>
-                !assignedEmployeeIds.includes(employee.id)
-            );
+                    let statusText = '';
+                    if (task.status === 'PENDING') {
+                        statusText = 'В работе';
+                    } else if (task.status) {
+                        statusText = task.status;
+                    }
 
-            document.getElementById('vitrinName').value = vitrin.name;
+                    taskDiv.innerHTML = `
+                    <div class="task-name">${task.name}</div>
+                    <div class="task-description">${task.description || 'Описание отсутствует'}</div>
+                    <div class="task-meta">
+                        <span>Создано: ${task.created || 'Дата не указана'}</span>
+                        <span class="status ${task.status === 'PENDING' ? 'status-pending' : ''}">${statusText}</span>
+                    </div>
+                    <div class="task-meta">
+                        <span>Сотрудник: ${user.lastName} ${user.firstName.charAt(0)}.</span>
+                    </div>
+                    <div class="task-end-date">
+                        <span>Дата окончания: ${task.endDate || 'Не указана'}</span>
+                    </div>
+                `;
 
-            assignedEmployees.forEach(emp => selectedEmployees.add(emp.id));
+                    tasksSection.appendChild(taskDiv);
+                });
+            });
 
-            renderEmployees(assignedEmployees, 'assignedEmployees', true);
-            renderEmployees(availableEmployees, 'availableEmployees', true);
+            infoBlock.querySelector('.edit').onclick = () => {
+                const url = `/setting-vitrina.html?vitrinId=${vitrinId}`;
+                console.log('Переход на:', url);
+                window.location.href = url;
+            };
+            infoBlock.querySelector('.task').onclick = () => {
+                const url = `/create-task.html?vitrinId=${vitrinId}`;
+                console.log('Переход на:', url);
+                window.location.href = url;
+            };
 
-            document.getElementById('editModal').style.display = 'flex';
+            infoBlock.classList.add('visible');
+
+            const closeListener = (e) => {
+                if (!infoBlock.contains(e.target) && e.target !== rectangle) {
+                    infoBlock.classList.remove('visible');
+                    document.removeEventListener('click', closeListener);
+                }
+            };
+            document.addEventListener('click', closeListener);
         } catch (error) {
             alert(error.message);
             console.error(error);

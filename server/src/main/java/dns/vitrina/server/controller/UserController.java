@@ -63,8 +63,8 @@ public class UserController {
     }
 
     @CrossOrigin
-    @PostMapping("/setting-vitrina")
-    public void updateUserOnVitrina(@RequestBody List<User> users) {
-
+    @PostMapping("/vitrina")
+    public void updateVitrina(@RequestBody Vitrina vitrina) {
+        service.updateVitrina(vitrina);
     }
 }
