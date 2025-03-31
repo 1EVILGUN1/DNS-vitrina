@@ -9,7 +9,7 @@ public interface VitrinaService {
 
     Vitrina get(Long id);
 
-    List<Vitrina> getAll();
+    List<VitrinaDto> getAll();
 
     void update(Vitrina vitrina);
 }

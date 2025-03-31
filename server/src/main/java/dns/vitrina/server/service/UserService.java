@@ -25,6 +25,7 @@ public class UserService implements UserServiceImpl {
     private final VitrinaService vitrinaService;
     private final TaskService taskService;
     private final UserMapper mapper;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -104,8 +105,9 @@ public class UserService implements UserServiceImpl {
     @Override
     public void authenticate(UserAuthDto userAuthDto) {
         log.info("Запрос на авторизацию пользователя в бд: {}", userAuthDto.getLastName());
-        if (!(repository.existsByLastName(userAuthDto.getLastName()))) {
-            log.warn("Пользователь с фамилией {} нет в бд", userAuthDto.getLastName());
+        User user = userMapper.userAuthDtoToUser(userAuthDto);
+        if (!(repository.existsByLastName(user.getLastName()))) {
+            log.warn("Пользователь с фамилией {} нет в бд", user.getLastName());
             throw new NotDateBaseUserException("Пользователь уже есть в бд");
         }
     }

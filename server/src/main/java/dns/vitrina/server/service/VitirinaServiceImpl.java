@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +20,7 @@ import java.util.List;
 public class VitirinaServiceImpl implements VitrinaService{
     private final VitrinaRepository repository;
     private final VitrinaMapper mapper;
+    private final VitrinaMapper vitrinaMapper;
 
     @Override
     public Vitrina get(Long id) {
@@ -29,8 +31,9 @@ public class VitirinaServiceImpl implements VitrinaService{
     }
 
     @Override
-    public List<Vitrina> getAll() {
-        return repository.findAll().stream().toList();
+    public List<VitrinaDto> getAll() {
+        List<Vitrina> vitrins = repository.findAll().stream().toList();
+        return mapper.toDtoList(vitrins);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class VitirinaServiceImpl implements VitrinaService{
     public void update(Vitrina vitrinaDto) {
         Vitrina vitrinaUpdate = repository.findById(vitrinaDto.getId()).orElseThrow(()-> new NotDateBaseUserException("нет витрины"));
         vitrinaUpdate.setName(vitrinaDto.getName());
+        vitrinaUpdate.getUsersToVitrina().clear();
         vitrinaUpdate.setUsersToVitrina(vitrinaDto.getUsersToVitrina());
         repository.save(vitrinaUpdate);
     }

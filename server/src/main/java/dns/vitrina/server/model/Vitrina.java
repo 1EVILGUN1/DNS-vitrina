@@ -29,8 +29,8 @@ public class Vitrina {
     @Column
     private int height;
 
-    @OneToMany
-    List<User> usersToVitrina = new ArrayList<>();
+    @ManyToMany
+    private List<User> usersToVitrina = new ArrayList<>();
 
     public void addUserToVitrina(User user) {
         usersToVitrina.add(user);

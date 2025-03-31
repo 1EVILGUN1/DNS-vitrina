@@ -1,5 +1,6 @@
 package dns.vitrina.server.controller;
 
+import dns.vitrina.server.dto.VitrinaDto;
 import dns.vitrina.server.model.Vitrina;
 import dns.vitrina.server.service.VitrinaService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class VitrinaController {
 
     @CrossOrigin
     @GetMapping("/vitrins")
-    public List<Vitrina> getVitrinas() {
+    public List<VitrinaDto> getVitrinas() {
         return service.getAll();
     }
 
