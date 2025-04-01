@@ -16,6 +16,10 @@
     <description>server</description>
     <modules>
         <module>infra</module>
+        <module>interaction-api</module>
+        <module>user-service</module>
+        <module>vitrina-service</module>
+        <module>task-service</module>
     </modules>
 
 
