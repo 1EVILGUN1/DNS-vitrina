@@ -27,10 +27,10 @@ public class Task {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusTask status = StatusTask.PENDING;
+    private StatusTask status;
 
     @Column(nullable = false)
-    private LocalDate created = LocalDate.now();
+    private LocalDate created;
 
     @Column
     private LocalDate endDate;

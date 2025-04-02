@@ -1,6 +1,6 @@
-package dns.vitrina.dto;
+package dns.vitrina.dto.user;
 
-import dns.vitrina.server.model.Task;
+import dns.vitrina.dto.task.TaskInTableResponseDto;
 import lombok.Data;
 
 import java.util.List;
@@ -11,5 +11,5 @@ public class UserDto {
     Long id;
     String firstName;
     String lastName;
-    List<Task> tasks;
+    List<TaskInTableResponseDto> tasks;
 }

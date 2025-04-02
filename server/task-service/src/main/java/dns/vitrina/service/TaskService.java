@@ -1,31 +1,16 @@
 package dns.vitrina.service;
 
-import dns.vitrina.server.model.Task;
-import dns.vitrina.server.model.TaskSuccess;
-import dns.vitrina.server.repository.TaskRepository;
-import dns.vitrina.server.repository.TaskSuccessRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import dns.vitrina.dto.task.TaskInTableResponseDto;
 
-@Service
-@RequiredArgsConstructor
-public class TaskService {
-    private final TaskRepository repository;
-    private final TaskSuccessRepository taskSuccessRepository;
+import java.util.List;
 
-    @Transactional
-    public void save(Task task) {
-        repository.save(task);
-    }
+public interface TaskService {
 
-    @Transactional
-    public void delete (Task task) {
-        repository.delete(task);
-    }
+    TaskInTableResponseDto getById (Long id);
 
-    @Transactional
-    public void saveSuccess (TaskSuccess taskSuccess) {
-        taskSuccessRepository.save(taskSuccess);
-    }
+    TaskInTableResponseDto getByVitrinaId (Long vitrinaId, Long id);
+
+    List<TaskInTableResponseDto> getAllByUserId (Long userId);
+
+    List<TaskInTableResponseDto> getAllByVitrinaId (Long vitrinaId);
 }

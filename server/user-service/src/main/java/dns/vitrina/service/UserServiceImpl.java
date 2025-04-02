@@ -1,23 +1,55 @@
 package dns.vitrina.service;
 
-import dns.vitrina.server.dto.UserAuthDto;
-import dns.vitrina.server.dto.UserDto;
-import dns.vitrina.server.dto.UserRequest;
-import dns.vitrina.server.model.User;
 
+import dns.vitrina.dto.task.TaskInTableResponseDto;
+import dns.vitrina.dto.user.UserAuthDto;
+import dns.vitrina.dto.user.UserDto;
+import dns.vitrina.exception.AddedUserException;
+import dns.vitrina.exception.NotDateBaseUserException;
+import dns.vitrina.facade.TaskFacade;
+import dns.vitrina.mapper.UserMapper;
+import dns.vitrina.model.User;
+import dns.vitrina.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
-public interface UserServiceImpl {
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+    private final UserRepository repository;
+    private final UserMapper mapper;
+    private final TaskFacade taskFacade;
 
-    void create(User user);
 
-    void update(Long id, UserDto userDto);
+    @Override
+    public UserDto getById(Long id) {
+        return repository.findById(id).stream()
+                .findFirst()
+                .map(mapper::userToUserDto)
+                .orElseThrow(()-> new NotDateBaseUserException("нет пользователя с таким ID" + id));
+    }
 
-    void delete(Long id);
+    @Override
+    public void authenticate(UserAuthDto dto) {
+        log.info("Запрос на авторизацию пользователя в бд: {}", dto.getLastName());
+        if (!(repository.existsByLastName(dto.getLastName()))) {
+            log.warn("Пользователь с фамилией {} нет в бд", dto.getLastName());
+            throw new NotDateBaseUserException("Пользователь уже есть в бд");
+        }
+    }
 
-    User get(Long id);
+    @Override
+    public List<UserDto> getAll() {
+        return mapper.usersToUserDtos(repository.findAll());
+    }
 
-    void authenticate(UserAuthDto userAuthDto);
-
-    List<User> getAll();
+    public UserDto getUserDto(Long userId) {
+        UserDto userDto = getById(userId);
+        List<TaskInTableResponseDto> tasks = taskFacade.getTasksByUserId(userId);
+        userDto.setTasks(tasks);
+        return userDto;
+    }
 }

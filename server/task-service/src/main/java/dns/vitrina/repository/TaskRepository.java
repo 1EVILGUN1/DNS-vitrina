@@ -1,6 +1,6 @@
 package dns.vitrina.repository;
 
-import dns.vitrina.server.model.Task;
+import dns.vitrina.model.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

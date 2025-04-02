@@ -1,15 +1,15 @@
-package dns.vitrina.dto;
+package dns.vitrina.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserRequest {
-    @Size(min = 5)
+public class UserAuthDto {
     @NotBlank
-    String firstName;
     @Size(min = 5)
+    private String lastName;
     @NotBlank
-    String lastName;
+    @Size(min = 5)
+    private String password;
 }

@@ -1,8 +1,7 @@
 package dns.vitrina.controller;
 
-import dns.vitrina.server.dto.VitrinaDto;
-import dns.vitrina.server.model.Vitrina;
-import dns.vitrina.server.service.VitrinaService;
+import dns.vitrina.dto.vitrina.VitrinaDto;
+import dns.vitrina.service.VitrinaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +22,8 @@ public class VitrinaController {
 
     @CrossOrigin
     @GetMapping("/vitrina/{vitrinaId}")
-    public Vitrina getVitrina(@PathVariable Long vitrinaId) {
-        return service.get(vitrinaId);
+    public VitrinaDto getVitrina(@PathVariable Long vitrinaId) {
+        return service.getById(vitrinaId);
     }
 
 }

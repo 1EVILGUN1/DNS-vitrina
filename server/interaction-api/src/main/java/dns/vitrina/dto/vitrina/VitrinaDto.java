@@ -1,5 +1,6 @@
-package dns.vitrina.dto;
+package dns.vitrina.dto.vitrina;
 
+import dns.vitrina.dto.user.UserDto;
 import lombok.Data;
 
 import java.util.List;
