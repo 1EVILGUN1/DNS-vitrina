@@ -13,4 +13,6 @@ public interface TaskService {
     List<TaskInTableResponseDto> getAllByUserId (Long userId);
 
     List<TaskInTableResponseDto> getAllByVitrinaId (Long vitrinaId);
+
+    List<TaskInTableResponseDto> getAllByIds (List<Long> ids);
 }

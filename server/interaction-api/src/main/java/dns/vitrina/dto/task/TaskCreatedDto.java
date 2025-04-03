@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDate;
 
+//Dto создание задачи
 @Data
 public class TaskCreatedDto {
 

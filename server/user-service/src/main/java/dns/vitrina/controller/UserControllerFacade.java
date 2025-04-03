@@ -19,11 +19,21 @@ public class UserControllerFacade implements UserFacade {
 
     @Override
     public UserDto getUserById(Long userId) {
-        return null;
+        return service.getByIdDto(userId);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
-        return List.of();
+        return service.getAll();
+    }
+
+    @Override
+    public List<UserDto> findUsersByVitrinaId(Long vitrinaId) {
+        return service.findUsersByVitrinaId(vitrinaId);
+    }
+
+    @Override
+    public List<UserDto> getListUsersByIds(List<Long> userIds) {
+        return service.getAllUserByIds(userIds);
     }
 }

@@ -8,9 +8,14 @@ import java.util.List;
 
 public interface UserService {
 
-    UserDto getById(Long id);
+    UserDto getByIdDto(Long id);
 
     void authenticate(UserAuthDto dto);
 
     List<UserDto> getAll();
+
+    List<UserDto> findUsersByVitrinaId(Long vitrinaId);
+
+    List<UserDto> getAllUserByIds(List<Long> ids);
+
 }

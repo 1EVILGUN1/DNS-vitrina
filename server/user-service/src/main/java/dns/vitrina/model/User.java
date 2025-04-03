@@ -28,15 +28,21 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // Список ID задач, связанных с пользователем (опционально)
+    // Список ID задач в таблице user_tasks_id
     @ElementCollection
-    @CollectionTable(name = "user_task_ids", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(
+            name = "user_tasks_id",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
     @Column(name = "task_id")
     private List<Long> taskIds = new ArrayList<>();
 
-    // Список ID витрин, связанных с пользователем (опционально)
+    // Список ID витрин в таблице user_vitrinas_id
     @ElementCollection
-    @CollectionTable(name = "user_vitrina_ids", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(
+            name = "user_vitrinas_id",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
     @Column(name = "vitrina_id")
     private List<Long> vitrinaIds = new ArrayList<>();
 

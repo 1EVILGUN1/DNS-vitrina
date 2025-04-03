@@ -37,4 +37,9 @@ public class TaskControllerFacade implements TaskFacade {
     public List<TaskInTableResponseDto> getTasksByVitrina(Long vitrinaId) {
         return service.getAllByVitrinaId(vitrinaId);
     }
+
+    @Override
+    public List<TaskInTableResponseDto> getListTasksByIds(List<Long> taskIds) {
+        return List.of();
+    }
 }

@@ -4,25 +4,57 @@ package dns.vitrina.mapper;
 import dns.vitrina.dto.user.UserAuthDto;
 import dns.vitrina.dto.user.UserCreatedDto;
 import dns.vitrina.dto.user.UserDto;
-import dns.vitrina.dto.user.UserRequest;
+import dns.vitrina.facade.TaskFacade;
+import dns.vitrina.facade.VitrinaFacade;
 import dns.vitrina.model.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface UserMapper {
-    @Mapping(target = "tasks", ignore = true) // tasks устанавливаются в сервисе
-    UserDto userToUserDto(User user);
+@RequiredArgsConstructor
+public class UserMapper {
+    private final VitrinaFacade vitrinaFacade;
+    private final TaskFacade taskFacade;
 
-    List<UserDto> usersToUserDtos(List<User> users);
+    public UserDto ToDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        return userDto;
+    }
 
-    // Заменяем UserRequest на UserCreatedDto для создания пользователя
-    User userCreatedDtoToUser(UserCreatedDto userCreatedDto);
+    public List<UserDto> ToDtos(List<User> users) {
+        List<UserDto> userDtos = new ArrayList<>();
+        for (User user : users) {
+            userDtos.add(ToDto(user));
+        }
+        return userDtos;
+    }
 
-    UserAuthDto userToUserAuthDto(User user);
+    public User userCreatedDtoToUser(UserCreatedDto dto) {
+        User user = new User();
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPassword(dto.getPassword());
+        return user;
+    }
+
+    public User userToUserAuthDto(UserAuthDto dto) {
+        User user = new User();
+        user.setLastName(dto.getLastName());
+        user.setPassword(dto.getPassword());
+        return user;
+    }
+
+    public User ToUser(UserDto dto) {
+        User user = new User();
+        user.setId(dto.getId());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        return user;
+    }
 }

@@ -1,5 +1,6 @@
 package dns.vitrina.model;
 
+import dns.vitrina.dto.task.StatusTask;
 import jakarta.persistence.*;
 import lombok.*;
 

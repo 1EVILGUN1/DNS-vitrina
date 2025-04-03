@@ -6,19 +6,15 @@ spring:
         - id: user-service_route
           uri: lb://user-service
           predicates:
-            - Path= /admin/users, /admin/users/*, /user, /user/*
-        - id: request-service_route
-          uri: lb://request-service
+            - Path= /admin/users, /admin/users/*, /user-service, /user-service/*
+        - id: task-service_route
+          uri: lb://task-service
           predicates:
-            - Path= /users/*/requests, /users/*/requests/*/cancel, /request/event/*, /request, /request/all, /request/find
-        - id: event-service_route
-          uri: lb://event-service
+            - Path= /admin/task, /admin/task/*, /task-service, /task-service/*
+        - id: vitrina-service_route
+          uri: lb://vitrina-service
           predicates:
-            - Path=/admin/categories, /admin/categories/*, /categories, /categories/*,   /compilations, /compilations/*, /admin/events, /admin/events/*, /users/*/events, /users/*/events/*, /users/*/events/*/requests, /events, /events/*, /users/*/requests, /users/*/requests/*/cancel, /admin/compilations, /admin/compilations/*, /compilations, /compilations/*, /event/*
-        - id: subscription-service_route
-          uri: lb://subscription-service
-          predicates:
-            - Path=/users/*/events/*/subscriptions, /users/*/events/*/subscriptions/*, /events/*/subscriptions, /events/*/subscriptions/*, /users/*/subscriptions/**, /users/*/black-list/**, /users/*/subscriptions/events
+            - Path=/admin/vitrina, /admin/vitrina/*, /vitrina-service, /vitrina-service/*
 
 server:
   port: 8080

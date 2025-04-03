@@ -2,6 +2,7 @@ package dns.vitrina.service;
 
 
 import dns.vitrina.dto.task.TaskInTableResponseDto;
+import dns.vitrina.mapper.TaskMapper;
 import dns.vitrina.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskServiceImp implements TaskService {
     private final TaskRepository repository;
+    private final TaskMapper mapper;
 
 
     @Override
@@ -34,5 +36,12 @@ public class TaskServiceImp implements TaskService {
     @Override
     public List<TaskInTableResponseDto> getAllByVitrinaId(Long vitrinaId) {
         return List.of();
+    }
+
+    @Override
+    public List<TaskInTableResponseDto> getAllByIds(List<Long> ids) {
+        return repository.findByIdIn(ids).stream()
+                .map(mapper::toTaskInTableResponseDto)
+                .toList();
     }
 }

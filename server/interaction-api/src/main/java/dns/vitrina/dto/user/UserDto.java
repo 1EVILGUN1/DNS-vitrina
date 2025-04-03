@@ -1,15 +1,13 @@
 package dns.vitrina.dto.user;
 
-import dns.vitrina.dto.task.TaskInTableResponseDto;
 import lombok.Data;
 
 import java.util.List;
 
-
+//отображения пользователя в таблице сотрудников справа на главной странице
 @Data
 public class UserDto {
-    Long id;
-    String firstName;
-    String lastName;
-    List<TaskInTableResponseDto> tasks;
+    private Long id;
+    private String firstName;
+    private String lastName;
 }

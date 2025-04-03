@@ -1,10 +1,8 @@
 package dns.vitrina.service;
 
 
-import dns.vitrina.dto.task.TaskInTableResponseDto;
 import dns.vitrina.dto.user.UserAuthDto;
 import dns.vitrina.dto.user.UserDto;
-import dns.vitrina.exception.AddedUserException;
 import dns.vitrina.exception.NotDateBaseUserException;
 import dns.vitrina.facade.TaskFacade;
 import dns.vitrina.mapper.UserMapper;
@@ -25,11 +23,8 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDto getById(Long id) {
-        return repository.findById(id).stream()
-                .findFirst()
-                .map(mapper::userToUserDto)
-                .orElseThrow(()-> new NotDateBaseUserException("нет пользователя с таким ID" + id));
+    public UserDto getByIdDto(Long id) {
+        return mapper.ToDto(getById(id));
     }
 
     @Override
@@ -43,13 +38,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAll() {
-        return mapper.usersToUserDtos(repository.findAll());
+        return mapper.ToDtos(repository.findAll());
     }
 
-    public UserDto getUserDto(Long userId) {
-        UserDto userDto = getById(userId);
-        List<TaskInTableResponseDto> tasks = taskFacade.getTasksByUserId(userId);
-        userDto.setTasks(tasks);
-        return userDto;
+    @Override
+    public List<UserDto> findUsersByVitrinaId(Long vitrinaId) {
+        return repository.findUsersByVitrinaId(vitrinaId).stream()
+                .map(mapper::ToDto)
+                .toList();
+
+    }
+
+    @Override
+    public List<UserDto> getAllUserByIds(List<Long> ids) {
+        return mapper.ToDtos(repository.findAllById(ids));
+    }
+
+    private User getById(Long id){
+        return repository.findById(id).stream()
+                .findFirst()
+                .orElseThrow(()-> new NotDateBaseUserException("нет пользователя с таким ID" + id));
     }
 }

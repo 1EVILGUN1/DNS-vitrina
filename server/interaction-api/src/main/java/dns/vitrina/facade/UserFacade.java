@@ -12,8 +12,14 @@ import java.util.List;
 public interface UserFacade {
 
     @GetMapping("/{userId}")
-    UserDto getUserById(@PathVariable("vitrinaId") Long userId);
+    UserDto getUserById(@PathVariable("userId") Long userId);
 
     @GetMapping
     List<UserDto> getAllUsers();
+
+    @GetMapping("/vitrina/{vitrinaId}")
+    List<UserDto> findUsersByVitrinaId(@PathVariable("vitrinaId") Long vitrinaId);
+
+    @GetMapping("/user-by-id")
+    List<UserDto> getListUsersByIds(@RequestParam("userIds") List<Long> userIds);
 }
