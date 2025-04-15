@@ -5,10 +5,10 @@ services:
     ports:
       - "8761:8761"
     networks:
-      - dns-vitrina-net
+      - ewm-net
     healthcheck:
-      test: "wget --quiet --tries=1 --spider http://localhost:8761/actuator/health || exit 1"
-      timeout: 10s
+      test: "curl --fail --silent discovery-server:8761/actuator/health | grep UP || exit 1"
+      timeout: 5s
       interval: 20s
       retries: 5
 
@@ -19,13 +19,13 @@ services:
       discovery-server:
         condition: service_healthy
     networks:
-      - dns-vitrina-net
+      - ewm-net
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
       - SERVER_PORT=9091
     healthcheck:
-      test: "wget --quiet --tries=1 --spider http://localhost:9091/actuator/health || exit 1"
-      timeout: 10s
+      test: "curl --fail --silent config-server:9091/actuator/health | grep UP || exit 1"
+      timeout: 5s
       interval: 30s
       retries: 5
 
@@ -44,84 +44,84 @@ services:
       task-service:
         condition: service_healthy
     networks:
-      - dns-vitrina-net
+      - ewm-net
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
 
   user-service:
     mem_limit: 512m
     build: user-service
-    container_name: user-service
+    container_name: ewm-user-service
     depends_on:
-      dns-vitrina-db:
+      ewm-db:
         condition: service_healthy
       config-server:
         condition: service_healthy
     networks:
-      - dns-vitrina-net
+      - ewm-net
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://dns-vitrina-db:5432/user_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_user
+      - SPRING_DATASOURCE_USERNAME=user_service
+      - SPRING_DATASOURCE_PASSWORD=user_pass
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
       - SERVER_PORT=8081
     healthcheck:
-      test: "wget --quiet --tries=1 --spider http://localhost:8081/actuator/health || exit 1"
-      timeout: 10s
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      timeout: 5s
       interval: 25s
       retries: 10
 
   vitrina-service:
     mem_limit: 512m
     build: vitrina-service
-    container_name: vitrina-service
+    container_name: ewm-vitrina-service
     depends_on:
-      dns-vitrina-db:
+      ewm-db:
         condition: service_healthy
       config-server:
         condition: service_healthy
     networks:
-      - dns-vitrina-net
+      - ewm-net
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://dns-vitrina-db:5432/vitrina_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_vitrina
+      - SPRING_DATASOURCE_USERNAME=vitrina_service
+      - SPRING_DATASOURCE_PASSWORD=vitrina_pass
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
       - SERVER_PORT=8082
     healthcheck:
-      test: "wget --quiet --tries=1 --spider http://localhost:8082/actuator/health || exit 1"
-      timeout: 10s
+      test: "curl --fail --silent localhost:8082/actuator/health | grep UP || exit 1"
+      timeout: 5s
       interval: 25s
       retries: 10
 
   task-service:
     mem_limit: 512m
     build: task-service
-    container_name: task-service
+    container_name: ewm-task-service
     depends_on:
-      dns-vitrina-db:
+      ewm-db:
         condition: service_healthy
       config-server:
         condition: service_healthy
     networks:
-      - dns-vitrina-net
+      - ewm-net
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://dns-vitrina-db:5432/task_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_task
+      - SPRING_DATASOURCE_USERNAME=task_service
+      - SPRING_DATASOURCE_PASSWORD=task_pass
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
       - SERVER_PORT=8083
     healthcheck:
-      test: "wget --quiet --tries=1 --spider http://localhost:8083/actuator/health || exit 1"
-      timeout: 10s
+      test: "curl --fail --silent localhost:8083/actuator/health | grep UP || exit 1"
+      timeout: 5s
       interval: 25s
       retries: 10
 
-  dns-vitrina-db:
+  ewm-db:
     image: postgres:16.1-alpine
-    container_name: dns-vitrina-db
+    container_name: ewm-db
     networks:
-      - dns-vitrina-net
+      - ewm-net
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
@@ -135,28 +135,24 @@ services:
       retries: 15
 
   db-init:
-    image: postgres:16.1-alpine
+    image: postgres:16.1
     container_name: db-init
     networks:
-      - dns-vitrina-net
+      - ewm-net
     depends_on:
-      dns-vitrina-db:
+      ewm-db:
         condition: service_healthy
     environment:
       PGPASSWORD: root
     entrypoint:
-      - sh
+      - bash
       - -c
       - |
         set -e
-        psql -U root -h dns-vitrina-db -d postgres -v ON_ERROR_STOP=1 <<-EOSQL
-        CREATE DATABASE user_db;
-        CREATE DATABASE vitrina_db;
-        CREATE DATABASE task_db;
+        psql -U root -h ewm-db -d postgres -v ON_ERROR_STOP=1 <<-EOSQL
+        CREATE DATABASE ewm_user;
+        CREATE DATABASE ewm_vitrina;
+        CREATE DATABASE ewm_task;
         EOSQL
-
 networks:
-  dns-vitrina-net:
-
-volumes:
-  postgres_data:
+  ewm-net:

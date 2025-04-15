@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodePersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="task-service" name="Default">
+        <packages>
+          <package value="dns.vitrina" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="interaction-api" name="Default" />
+      <persistence-unit moduleName="user-service" name="Default">
+        <packages>
+          <package value="dns.vitrina" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="vitrina-service" name="Default">
+        <packages>
+          <package value="dns.vitrina" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

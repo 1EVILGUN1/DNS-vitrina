@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    gateway:
+      discovery.locator.enabled: true
+      routes:
+        - id: user-service_route
+          uri: lb://user-service
+          predicates:
+            - Path=/user, /user/**, /admin/users, /admin/users/**, /user-service, /user-service/**
+        - id: task-service_route
+          uri: lb://task-service
+          predicates:
+            - Path=/admin/task, /admin/task/*, /task-service, /task-service/*, /task, /task/*
+        - id: vitrina-service_route
+          uri: lb://vitrina-service
+          predicates:
+            - Path=/admin/vitrina, /admin/vitrina/*, /vitrina-service, /vitrina-service/*, /vitrina, /vitrina/*
+
+server:
+  port: 8080
+
