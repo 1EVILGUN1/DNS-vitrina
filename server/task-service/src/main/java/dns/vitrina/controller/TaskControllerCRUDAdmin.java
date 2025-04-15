@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("admin/tasks")
+@RequestMapping("admin/task")
 public class TaskControllerCRUDAdmin {
     private final TaskServiceCRUD service;
 

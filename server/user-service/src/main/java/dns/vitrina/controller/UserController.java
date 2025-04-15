@@ -11,6 +11,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UserController {
     private final UserService service;
 
@@ -21,7 +22,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @GetMapping("/users")
+    @GetMapping
     public List<UserDto> getUsers() {
         List<UserDto> userDtos = service.getAll();
         log.info(userDtos.toString());
@@ -29,8 +30,8 @@ public class UserController {
     }
 
     @CrossOrigin
-    @GetMapping("/user/{userId}")
+    @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
-        return service.getById(userId);
+        return service.getByIdDto(userId);
     }
 }

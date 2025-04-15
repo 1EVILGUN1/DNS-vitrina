@@ -25,3 +25,6 @@ eureka:
 
 logging.level:
   root: DEBUG
+logging:
+  level:
+    org.springframework.jdbc: DEBUG

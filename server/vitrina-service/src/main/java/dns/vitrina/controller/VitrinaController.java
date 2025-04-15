@@ -11,17 +11,18 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/vitrina")
 public class VitrinaController {
     private final VitrinaService service;
 
     @CrossOrigin
-    @GetMapping("/vitrins")
+    @GetMapping
     public List<VitrinaDto> getVitrinas() {
         return service.getAll();
     }
 
     @CrossOrigin
-    @GetMapping("/vitrina/{vitrinaId}")
+    @GetMapping("/{vitrinaId}")
     public VitrinaDto getVitrina(@PathVariable Long vitrinaId) {
         return service.getById(vitrinaId);
     }
